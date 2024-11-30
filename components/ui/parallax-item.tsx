@@ -5,7 +5,10 @@ import Animated, {
   interpolate,
   SharedValue,
   useAnimatedStyle,
+  useSharedValue,
+  withSpring,
 } from "react-native-reanimated";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import {
   FULL_ITEM_WIDTH,
   ITEM_HEIGHT,
@@ -20,7 +23,6 @@ type ParallaxItemProp = {
 };
 
 export const ParallaxItem = ({ item, index, scrollX }: ParallaxItemProp) => {
-    console.log(item.image)
   const { category, image } = item;
   const scaleFactor = 0.25;
 
@@ -62,53 +64,116 @@ export const ParallaxItem = ({ item, index, scrollX }: ParallaxItemProp) => {
     }
   })
 
+  const PEEK_HEIGHT = ITEM_HEIGHT * 0.4; // 40% of item height
+  const detailsTranslateY = useSharedValue(0);
+  const startY = useSharedValue(0);
+
+  const panGesture = Gesture.Pan()
+    .onStart(() => {
+      startY.value = detailsTranslateY.value;
+    })
+    .onUpdate((event) => {
+      detailsTranslateY.value = Math.max(-PEEK_HEIGHT, Math.min(0, startY.value + event.translationY));
+    })
+    .onEnd(() => {
+      if (detailsTranslateY.value < -PEEK_HEIGHT / 2) {
+        detailsTranslateY.value = withSpring(-PEEK_HEIGHT);
+      } else {
+        detailsTranslateY.value = withSpring(0);
+      }
+    });
+
+  const cardStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: detailsTranslateY.value }],
+    zIndex: 1,
+  }));
+
+  const peekStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateY: interpolate(
+          detailsTranslateY.value,
+          [-PEEK_HEIGHT, 0],
+          [ITEM_HEIGHT, ITEM_HEIGHT + PEEK_HEIGHT],
+          Extrapolation.CLAMP
+        ),
+      },
+    ],
+    zIndex: 0,
+  }));
+
   return (
-    <View
-      style={{
+    <GestureDetector gesture={panGesture}>
+      <View style={{
         width: ITEM_WIDTH,
-        height: ITEM_HEIGHT,
-        backgroundColor: "black",
-        borderRadius: SPACING,
-        overflow: "hidden",
-        padding: SPACING,
-      }}
-    >
-      <Animated.View
-        style={[{
-          position: "absolute",
-          transformOrigin: "0, 0",
-          left: 0,
-          width: ITEM_HEIGHT,
-          top: ITEM_HEIGHT,
-          alignItems: "flex-start",
-          paddingHorizontal: SPACING,
-         
-        }, textStyle]}
-      >
-        <Text
+        height: ITEM_HEIGHT + PEEK_HEIGHT, // Adjust height 
+        position: 'relative',
+      }}>
+        <View
           style={{
-            fontSize: 58,
-            color: "white",
+            position: 'absolute',
+            bottom: '30%',
+            left: 0,
+            right: 0,
+            height: ITEM_HEIGHT-PEEK_HEIGHT,
+            backgroundColor: 'black', // Changed to black
+            borderRadius: SPACING,
           }}
         >
-          {category}
-        </Text>
-      </Animated.View>
-      <Animated.Image
-        loadingIndicatorSource={require("../../assets/images/react-logo.png")}
-        source={{
-          uri: image,
-            }}
-        style={[
-          StyleSheet.absoluteFillObject,
+          <Text style={{ color: 'white', padding: SPACING }}>
+            Details for {category}
+          </Text>
+        </View>
+
+        <Animated.View style={[
           {
-            opacity: 0.5
+            width: ITEM_WIDTH,
+            height: ITEM_HEIGHT,
+            backgroundColor: "black",
+            borderRadius: SPACING,
+            overflow: "hidden",
+            position: 'absolute',
+            top: 0,
+            zIndex: 1,
           },
-          imageStyle,
-        ]}
-        resizeMode="cover"
-        progressiveRenderingEnabled
-      />
-    </View>
+          cardStyle
+        ]}>
+          <View style={{
+            height: ITEM_HEIGHT,
+            position: 'relative',
+          }}>
+            <Animated.Image
+              loadingIndicatorSource={require("../../assets/images/react-logo.png")}
+              source={{ uri: image }}
+              style={[
+                StyleSheet.absoluteFillObject,
+                { opacity: 0.5 },
+                imageStyle,
+              ]}
+              resizeMode="cover"
+              progressiveRenderingEnabled
+            />
+            <Animated.View
+              style={[{
+                position: "absolute",
+                transformOrigin: "0, 0",
+                left: 0,
+                width: ITEM_HEIGHT,
+                top: ITEM_HEIGHT,
+                alignItems: "flex-start",
+                paddingHorizontal: SPACING,
+              }, textStyle]}
+            >
+              <Text style={{
+                fontSize: 58,
+                color: "white",
+              }}>
+                {category}
+              </Text>
+            </Animated.View>
+          </View>
+        </Animated.View>
+      </View>
+    </GestureDetector>
   );
 };

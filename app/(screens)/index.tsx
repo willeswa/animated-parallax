@@ -7,6 +7,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const isColorLight = (color: string) => {
   const hex = color.replace("#", "");
@@ -39,7 +40,7 @@ export default function MainScreen() {
   });
 
   return (
-    <>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <Stack.Screen
         options={{
           headerStyle: { backgroundColor },
@@ -50,6 +51,6 @@ export default function MainScreen() {
       <Animated.View style={[{ flex: 1 }, animatedStyle]}>
         <CustomParallax setDominantColor={setBackgroundColor} />
       </Animated.View>
-    </>
+    </GestureHandlerRootView>
   );
 }
