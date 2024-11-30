@@ -51,7 +51,7 @@ export const CustomParallax = ({
       if(res.platform === 'android') {
         setDominantColor(res.dominant);
       } else if(res.platform === 'ios') {
-        setDominantColor(res.detail);
+        setDominantColor(res.background);
       }
     } catch (error) {
       console.log(error); 
@@ -65,7 +65,7 @@ export const CustomParallax = ({
   const onViewableItemsChanged = ({ viewableItems }: any) => {
     if (viewableItems.length > 0) {
       const visibleItem = viewableItems[0].item;
-      getDominantColor(visibleItem.url);
+      getDominantColor(visibleItem.image);
     }
   };
 
@@ -73,7 +73,7 @@ export const CustomParallax = ({
     <Animated.FlatList
       ref={flatListRef}
       data={extendedData}
-      keyExtractor={({ department }, index) => department + index}
+      keyExtractor={({ category }, index) => category + index}
       horizontal
       contentContainerStyle={{
         gap: SPACING,

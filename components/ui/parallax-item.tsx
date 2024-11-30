@@ -20,7 +20,8 @@ type ParallaxItemProp = {
 };
 
 export const ParallaxItem = ({ item, index, scrollX }: ParallaxItemProp) => {
-  const { department, url } = item;
+    console.log(item.image)
+  const { category, image } = item;
   const scaleFactor = 0.25;
 
   const _translateX = FULL_ITEM_WIDTH * scaleFactor * 2;
@@ -80,22 +81,23 @@ export const ParallaxItem = ({ item, index, scrollX }: ParallaxItemProp) => {
           width: ITEM_HEIGHT,
           top: ITEM_HEIGHT,
           alignItems: "flex-start",
+          paddingHorizontal: SPACING,
          
         }, textStyle]}
       >
         <Text
           style={{
-            fontSize: 80,
+            fontSize: 58,
             color: "white",
           }}
         >
-          {department}
+          {category}
         </Text>
       </Animated.View>
       <Animated.Image
         loadingIndicatorSource={require("../../assets/images/react-logo.png")}
         source={{
-          uri: url,
+          uri: image,
             }}
         style={[
           StyleSheet.absoluteFillObject,
