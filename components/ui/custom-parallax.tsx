@@ -6,7 +6,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { FULL_ITEM_WIDTH, ITEM_WIDTH, SPACING, width } from "../constants";
 import { ParallaxItem } from "./parallax-item";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { FlatList } from "react-native";
 
 
@@ -21,6 +21,7 @@ export const CustomParallax = ({
 }: Prop) => {
   const scrollX = useSharedValue(0);
   const flatListRef = useRef<FlatList>(null);
+  const [dominantColor, setDominantColorState] = useState("white");
 
   const extendedData = [...data, ...data]; // Duplicate the data
 
@@ -48,11 +49,9 @@ export const CustomParallax = ({
   const getDominantColor = async (url: string) => {
     try {
       const res = await getColors(url);
-      if(res.platform === 'android') {
-        setDominantColor(res.dominant);
-      } else if(res.platform === 'ios') {
-        setDominantColor(res.background);
-      }
+      const color = res.platform === 'ios' ? res.primary : res.dominant;
+      setDominantColor(color);
+      setDominantColorState(color);
     } catch (error) {
       console.log(error); 
     }
@@ -87,6 +86,7 @@ export const CustomParallax = ({
             index={index}
             item={item}
             scrollX={scrollX}
+            dominantColor={dominantColor}
           />
         );
       }}

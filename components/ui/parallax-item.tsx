@@ -20,9 +20,10 @@ type ParallaxItemProp = {
   item: ItemDataType;
   index: number;
   scrollX: SharedValue<number>;
+  dominantColor: string;
 };
 
-export const ParallaxItem = ({ item, index, scrollX }: ParallaxItemProp) => {
+export const ParallaxItem = ({ item, index, scrollX, dominantColor }: ParallaxItemProp) => {
   const { category, image } = item;
   const scaleFactor = 0.25;
 
@@ -64,7 +65,8 @@ export const ParallaxItem = ({ item, index, scrollX }: ParallaxItemProp) => {
     }
   })
 
-  const PEEK_HEIGHT = ITEM_HEIGHT * 0.4; // 40% of item height
+  const PEEK_HEIGHT = ITEM_HEIGHT * 0.45; // 40% of item height
+  const PEEK_WIDTH_FACTOR = 1.14; // Expand width by a factor of 1.3
   const detailsTranslateY = useSharedValue(0);
   const startY = useSharedValue(0);
 
@@ -88,42 +90,51 @@ export const ParallaxItem = ({ item, index, scrollX }: ParallaxItemProp) => {
     zIndex: 1,
   }));
 
-  const peekStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        translateY: interpolate(
-          detailsTranslateY.value,
-          [-PEEK_HEIGHT, 0],
-          [ITEM_HEIGHT, ITEM_HEIGHT + PEEK_HEIGHT],
-          Extrapolation.CLAMP
-        ),
-      },
-    ],
-    zIndex: 0,
+  const peekContainerStyle = useAnimatedStyle(() => ({
+    width: interpolate(
+      detailsTranslateY.value,
+      [-PEEK_HEIGHT, 0],
+      [ITEM_WIDTH * PEEK_WIDTH_FACTOR, ITEM_WIDTH],
+      Extrapolation.CLAMP
+    ),
+    left: interpolate(
+      detailsTranslateY.value,
+      [-PEEK_HEIGHT, 0],
+      [-(ITEM_WIDTH * (PEEK_WIDTH_FACTOR - 1)) / 2, 0],
+      Extrapolation.CLAMP
+    ),
   }));
 
   return (
     <GestureDetector gesture={panGesture}>
       <View style={{
         width: ITEM_WIDTH,
-        height: ITEM_HEIGHT + PEEK_HEIGHT, // Adjust height 
+        height: ITEM_HEIGHT, // Adjust height 
         position: 'relative',
       }}>
-        <View
-          style={{
-            position: 'absolute',
-            bottom: '30%',
-            left: 0,
-            right: 0,
-            height: ITEM_HEIGHT-PEEK_HEIGHT,
-            backgroundColor: 'black', // Changed to black
-            borderRadius: SPACING,
-          }}
+        <Animated.View
+          style={[
+            {
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: ITEM_HEIGHT,
+              backgroundColor: dominantColor, // Use dominant color
+              borderRadius: SPACING,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 10 },
+              shadowOpacity: 0.3,
+              shadowRadius: 20,
+              elevation: 10,
+            },
+            peekContainerStyle
+          ]}
         >
           <Text style={{ color: 'white', padding: SPACING }}>
             Details for {category}
           </Text>
-        </View>
+        </Animated.View>
 
         <Animated.View style={[
           {

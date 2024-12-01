@@ -39,8 +39,12 @@ export default function MainScreen() {
     };
   });
 
+  const handlePeekOpen = () => {
+    // Define your handlePeekOpen function here
+  };
+
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView >
       <Stack.Screen
         options={{
           headerStyle: { backgroundColor },
@@ -49,7 +53,7 @@ export default function MainScreen() {
       />
       <StatusBar backgroundColor={backgroundColor} barStyle={barStyle} />
       <Animated.View style={[{ flex: 1 }, animatedStyle]}>
-        <CustomParallax setDominantColor={setBackgroundColor} />
+        <CustomParallax setDominantColor={setBackgroundColor} onPeekOpen={handlePeekOpen} />
       </Animated.View>
     </GestureHandlerRootView>
   );
