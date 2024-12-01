@@ -50,7 +50,7 @@ export const CustomParallax = ({
   const getDominantColor = async (url: string) => {
     try {
       const res = await getColors(url);
-      const color = res.platform === 'ios' ? res.detail : res.dominant;
+      const color = res.platform === 'ios' ? res.secondary : res.dominant;
       setDominantColor(color);
       setDominantColorState(color);
     } catch (error) {

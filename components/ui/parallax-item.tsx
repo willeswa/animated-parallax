@@ -71,19 +71,36 @@ export const ParallaxItem = ({ item, index, scrollX, dominantColor, activeIndex 
   const detailsTranslateY = useSharedValue(0);
   const startY = useSharedValue(0);
 
+  // Add spring configuration constants
+  const SPRING_CONFIG = {
+    damping: 20,
+    stiffness: 400,
+    mass: 0.5,
+    overshootClamping: true
+  };
+
+  // Modify the panGesture handler
   const panGesture = Gesture.Pan()
     .onStart(() => {
       startY.value = detailsTranslateY.value;
     })
     .onUpdate((event) => {
-      detailsTranslateY.value = Math.max(-PEEK_HEIGHT, Math.min(0, startY.value + event.translationY));
+      const dragAmount = startY.value + event.translationY;
+      // Add velocity factor for more responsive dragging
+      const velocityFactor = Math.sign(event.velocityY) * Math.min(Math.abs(event.velocityY) * 0.1, 20);
+      detailsTranslateY.value = Math.max(-PEEK_HEIGHT, Math.min(0, dragAmount + velocityFactor));
     })
-    .onEnd(() => {
-      if (detailsTranslateY.value < -PEEK_HEIGHT / 2) {
-        detailsTranslateY.value = withSpring(-PEEK_HEIGHT);
+    .onEnd((event) => {
+      // Make snap decision based on velocity and position
+      const shouldSnap = 
+        event.velocityY < -500 || 
+        (detailsTranslateY.value < -PEEK_HEIGHT * 0.2 && event.velocityY <= 0);
+
+      if (shouldSnap) {
+        detailsTranslateY.value = withSpring(-PEEK_HEIGHT, SPRING_CONFIG);
         activeIndex.value = index;
       } else {
-        detailsTranslateY.value = withSpring(0);
+        detailsTranslateY.value = withSpring(0, SPRING_CONFIG);
         activeIndex.value = -1;
       }
     });
