@@ -44,7 +44,7 @@ export default function MainScreen() {
   });
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <>
       <Stack.Screen
         options={{
           headerStyle: { backgroundColor },
@@ -67,6 +67,6 @@ export default function MainScreen() {
           />
         )}
       </Animated.View>
-    </GestureHandlerRootView>
+  </>
   );
 }

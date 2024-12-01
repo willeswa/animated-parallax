@@ -1,7 +1,8 @@
-import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { SPACING } from '../constants';
+import { router } from 'expo-router';
+import { Pressable, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { SPACING } from '../constants';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -60,7 +61,12 @@ export const CustomNavbar = ({ isPeeked }: CustomNavbarProps) => {
       ].map((item, index) => (
         <AnimatedPressable
           key={index}
-          onPress={() => {}}
+          onPress={() => {
+            console.log(`Pressed ${item.label}`);
+            router.push({
+                pathname: "/(screens)/settings"
+            });
+          }}
           style={({ pressed }) => [getAnimatedStyle(pressed)]}
         >
           <View style={{ alignItems: 'center', gap: SPACING/4 }}>

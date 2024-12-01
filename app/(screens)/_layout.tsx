@@ -10,6 +10,13 @@ export default function Layout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen 
+      name="settings"
+      options={{
+        title: "Settings",
+        headerShown: true,
+      }}
+      />
     </Stack>
   );
 }
