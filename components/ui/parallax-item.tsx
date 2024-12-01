@@ -1,21 +1,21 @@
 import { ItemDataType } from "@/utils/data";
-import { useCallback, useEffect } from "react";
-import { StyleSheet, Text, View, Pressable } from "react-native";
+import { useCallback } from "react";
+import { StyleSheet, Text, View } from "react-native"; // Import ScrollView and Image
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
-  Extrapolation,
-  interpolate,
-  SharedValue,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
+    Extrapolation,
+    interpolate,
+    runOnJS,
+    SharedValue,
+    useAnimatedStyle,
+    useSharedValue,
+    withSpring,
 } from "react-native-reanimated";
-import { LinearGradient } from "expo-linear-gradient"; // Import LinearGradient from expo-linear-gradient
 import {
-  FULL_ITEM_WIDTH,
-  ITEM_HEIGHT,
-  ITEM_WIDTH,
-  SPACING,
+    FULL_ITEM_WIDTH,
+    ITEM_HEIGHT,
+    ITEM_WIDTH,
+    SPACING,
 } from "../constants";
 type ParallaxItemProp = {
   item: ItemDataType;
@@ -24,6 +24,7 @@ type ParallaxItemProp = {
   dominantColor: string;
   activeIndex: SharedValue<number>;
   scrollRef: any;
+  onPeekChange: (isPeeked: boolean) => void; // Add this prop
 };
 
 export const ParallaxItem = ({
@@ -33,6 +34,7 @@ export const ParallaxItem = ({
   dominantColor,
   activeIndex,
   scrollRef,
+  onPeekChange,
 }: ParallaxItemProp) => {
   const { category, image } = item;
   const scaleFactor = 0.25;
@@ -95,6 +97,7 @@ export const ParallaxItem = ({
     detailsTranslateY.value = withSpring(0, SPRING_CONFIG);
     activeIndex.value = -1;
     isPeeked.value = false;
+    runOnJS(onPeekChange)(false); // Notify parent component using runOnJS
   }, []);
 
   // Modify the panGesture handler
@@ -132,6 +135,7 @@ export const ParallaxItem = ({
         detailsTranslateY.value = withSpring(-PEEK_HEIGHT, SPRING_CONFIG);
         activeIndex.value = index;
         isPeeked.value = true;
+        runOnJS(onPeekChange)(true); // Notify parent component using runOnJS
       } else {
         closePeek();
       }
@@ -152,6 +156,12 @@ export const ParallaxItem = ({
       [-(ITEM_WIDTH * (PEEK_WIDTH_FACTOR - 1)) / 2, 0],
       Extrapolation.CLAMP
     ),
+    top: interpolate(
+        detailsTranslateY.value,
+        [-ITEM_HEIGHT, 0],
+        [ITEM_HEIGHT*1.2, 0],
+        Extrapolation.CLAMP
+    )
   }));
 
   const peekContainerStyle = useAnimatedStyle(() => ({
@@ -244,7 +254,7 @@ export const ParallaxItem = ({
           style={[
             {
               position: "absolute",
-              bottom: 0,
+              top: ITEM_HEIGHT,
               left: 0,
               right: 0,
               height: ITEM_HEIGHT,

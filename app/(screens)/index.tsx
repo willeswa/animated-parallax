@@ -8,6 +8,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { CustomNavbar } from "@/components/ui/custom-navbar";
 
 const isColorLight = (color: string) => {
   const hex = color.replace("#", "");
@@ -22,6 +23,7 @@ export default function MainScreen() {
   const [backgroundColor, setBackgroundColor] = useState("white");
   const [barStyle, setBarStyle] = useState<StatusBarStyle>("dark-content");
   const animatedBackgroundColor = useSharedValue("white");
+  const [isPeeked, setIsPeeked] = useState(false); // Add this state
 
   useEffect(() => {
     animatedBackgroundColor.value = withTiming(backgroundColor, {
@@ -40,7 +42,7 @@ export default function MainScreen() {
   });
 
   return (
-    <GestureHandlerRootView >
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <Stack.Screen
         options={{
           headerStyle: { backgroundColor },
@@ -49,7 +51,11 @@ export default function MainScreen() {
       />
       <StatusBar backgroundColor={backgroundColor} barStyle={barStyle} />
       <Animated.View style={[{ flex: 1 }, animatedStyle]}>
-        <CustomParallax setDominantColor={setBackgroundColor} />
+        <CustomParallax 
+          setDominantColor={setBackgroundColor}
+          onPeekChange={setIsPeeked} // Add this prop
+        />
+        <CustomNavbar isPeeked={isPeeked} />
       </Animated.View>
     </GestureHandlerRootView>
   );
