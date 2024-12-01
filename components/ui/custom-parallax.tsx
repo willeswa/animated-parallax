@@ -1,13 +1,14 @@
 import { data } from "@/utils/data";
+import { useRef, useState } from "react";
+import { FlatList } from "react-native";
 import { getColors } from 'react-native-image-colors';
 import Animated, {
+  useAnimatedRef,
   useAnimatedScrollHandler,
   useSharedValue
 } from "react-native-reanimated";
 import { FULL_ITEM_WIDTH, ITEM_WIDTH, SPACING, width } from "../constants";
 import { ParallaxItem } from "./parallax-item";
-import { useRef, useState } from "react";
-import { FlatList } from "react-native";
 
 
 type Prop = {
@@ -21,8 +22,9 @@ export const CustomParallax = ({
 }: Prop) => {
   const scrollX = useSharedValue(0);
   const activeIndex = useSharedValue(-1);
-  const flatListRef = useRef<FlatList>(null);
+  const flatListRef = useRef<FlatList | null>(null);
   const [dominantColor, setDominantColorState] = useState("white");
+  const scrollRef = useAnimatedRef();  // Add this line
 
   const extendedData = [...data, ...data]; // Duplicate the data
 
@@ -71,7 +73,12 @@ export const CustomParallax = ({
 
   return (
     <Animated.FlatList
-      ref={flatListRef}
+      ref={(ref) => {
+        if (flatListRef.current !== ref) {
+          flatListRef.current = ref;
+        }
+        scrollRef.current = ref;
+      }}
       data={extendedData}
       keyExtractor={({ category }, index) => category + index}
       horizontal
@@ -89,6 +96,7 @@ export const CustomParallax = ({
             scrollX={scrollX}
             dominantColor={dominantColor}
             activeIndex={activeIndex}
+            scrollRef={scrollRef}  // Add this prop
           />
         );
       }}

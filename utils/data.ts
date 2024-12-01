@@ -59,7 +59,29 @@ export const data = constructionImages.map(({image, category}) => ({
                 rating: faker.number.int({min: 1, max: 5}),
             }
         ]
-    }
+    },
+    places: [
+        {
+            name: faker.location.streetAddress(),
+            rating: faker.number.int({min: 1, max: 5}),
+            image: faker.image.url()
+        },
+        {
+            name: faker.location.streetAddress(),
+            rating: faker.number.int({min: 1, max: 5}),
+            image: faker.image.url()
+        },
+        {
+            name: faker.location.streetAddress(),
+            rating: faker.number.int({min: 1, max: 5}),
+            image: faker.image.url()
+        },
+        {
+            name: faker.location.streetAddress(),
+            rating: faker.number.int({min: 1, max: 5}),
+            image: faker.image.url()
+        }
+    ]
 
 }))
 
