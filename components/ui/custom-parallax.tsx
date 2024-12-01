@@ -20,6 +20,7 @@ export const CustomParallax = ({
   setDominantColor,
 }: Prop) => {
   const scrollX = useSharedValue(0);
+  const activeIndex = useSharedValue(-1);
   const flatListRef = useRef<FlatList>(null);
   const [dominantColor, setDominantColorState] = useState("white");
 
@@ -49,7 +50,7 @@ export const CustomParallax = ({
   const getDominantColor = async (url: string) => {
     try {
       const res = await getColors(url);
-      const color = res.platform === 'ios' ? res.primary : res.dominant;
+      const color = res.platform === 'ios' ? res.detail : res.dominant;
       setDominantColor(color);
       setDominantColorState(color);
     } catch (error) {
@@ -87,6 +88,7 @@ export const CustomParallax = ({
             item={item}
             scrollX={scrollX}
             dominantColor={dominantColor}
+            activeIndex={activeIndex}
           />
         );
       }}

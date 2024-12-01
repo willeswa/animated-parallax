@@ -21,9 +21,10 @@ type ParallaxItemProp = {
   index: number;
   scrollX: SharedValue<number>;
   dominantColor: string;
+  activeIndex: SharedValue<number>;
 };
 
-export const ParallaxItem = ({ item, index, scrollX, dominantColor }: ParallaxItemProp) => {
+export const ParallaxItem = ({ item, index, scrollX, dominantColor, activeIndex }: ParallaxItemProp) => {
   const { category, image } = item;
   const scaleFactor = 0.25;
 
@@ -66,7 +67,7 @@ export const ParallaxItem = ({ item, index, scrollX, dominantColor }: ParallaxIt
   })
 
   const PEEK_HEIGHT = ITEM_HEIGHT * 0.45; // 40% of item height
-  const PEEK_WIDTH_FACTOR = 1.14; // Expand width by a factor of 1.3
+  const PEEK_WIDTH_FACTOR = 1.5; // Expand width by a factor of 1.3
   const detailsTranslateY = useSharedValue(0);
   const startY = useSharedValue(0);
 
@@ -80,14 +81,28 @@ export const ParallaxItem = ({ item, index, scrollX, dominantColor }: ParallaxIt
     .onEnd(() => {
       if (detailsTranslateY.value < -PEEK_HEIGHT / 2) {
         detailsTranslateY.value = withSpring(-PEEK_HEIGHT);
+        activeIndex.value = index;
       } else {
         detailsTranslateY.value = withSpring(0);
+        activeIndex.value = -1;
       }
     });
 
   const cardStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: detailsTranslateY.value }],
     zIndex: 1,
+    width: interpolate(
+        detailsTranslateY.value,
+        [-ITEM_HEIGHT, 0],
+        [ITEM_WIDTH * PEEK_WIDTH_FACTOR, ITEM_WIDTH],
+        Extrapolation.CLAMP
+    ),
+    left: interpolate(
+        detailsTranslateY.value,
+        [-ITEM_HEIGHT, 0],
+        [-(ITEM_WIDTH * (PEEK_WIDTH_FACTOR - 1)) / 2, 0],
+        Extrapolation.CLAMP
+    ),
   }));
 
   const peekContainerStyle = useAnimatedStyle(() => ({
@@ -105,13 +120,31 @@ export const ParallaxItem = ({ item, index, scrollX, dominantColor }: ParallaxIt
     ),
   }));
 
+  const containerStyle = useAnimatedStyle(() => ({
+    opacity: withSpring(
+      activeIndex.value === -1 || activeIndex.value === index ? 1 : 0,
+      { damping: 15, stiffness: 300 }
+    ),
+    transform: [
+      {
+        scale: withSpring(
+          activeIndex.value === -1 || activeIndex.value === index ? 1 : 0.95,
+          { damping: 15, stiffness: 300 }
+        ),
+      },
+    ],
+  }));
+
   return (
     <GestureDetector gesture={panGesture}>
-      <View style={{
-        width: ITEM_WIDTH,
-        height: ITEM_HEIGHT, // Adjust height 
-        position: 'relative',
-      }}>
+      <Animated.View style={[
+        {
+          width: ITEM_WIDTH,
+          height: ITEM_HEIGHT,
+          position: 'relative',
+        },
+        containerStyle
+      ]}>
         <Animated.View
           style={[
             {
@@ -184,7 +217,7 @@ export const ParallaxItem = ({ item, index, scrollX, dominantColor }: ParallaxIt
             </Animated.View>
           </View>
         </Animated.View>
-      </View>
+      </Animated.View>
     </GestureDetector>
   );
 };
