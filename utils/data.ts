@@ -2,6 +2,10 @@ import { faker } from '@faker-js/faker';
 
 const constructionImages: {image: string, category: string}[] = [
     {
+        category: "ADVENTURE",
+        image: "https://www.visitmyrtlebeach.com/sites/default/files/styles/hero_mobile/public/2023-08/newback.jpg.webp?itok=tqRmsg8g"
+    },
+    {
         category: 'CULTURE',
         image: "https://images.freeimages.com/images/large-previews/203/church-1222702.jpg"
     },
@@ -13,10 +17,7 @@ const constructionImages: {image: string, category: string}[] = [
         category: "HISTORICAL",
         image: "https://images.freeimages.com/images/large-previews/03e/oxford-architecture-1233371.jpg"
     },
-    {
-        category: "ADVENTURE",
-        image: "https://www.visitmyrtlebeach.com/sites/default/files/styles/hero_mobile/public/2023-08/newback.jpg.webp?itok=tqRmsg8g"
-    },
+  
     {
         category: "NIGHTLIFE",
         image: "https://images.freeimages.com/images/large-previews/3cb/the-treasure-1203251.jpg"

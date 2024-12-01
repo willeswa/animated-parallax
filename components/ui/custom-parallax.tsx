@@ -25,6 +25,8 @@ export const CustomParallax = ({ setDominantColor, onPeekChange }: Prop) => {
   const scrollRef = useAnimatedRef(); // Add this line
   const [activeItem, setActiveItem] = useState(data[0]); // Track the active item
   const [isPeeked, setIsPeeked] = useState(false); // Track the peek state
+  const [isAtEnd, setIsAtEnd] = useState(false);
+  const scrollViewRef = useRef(null);
 
   const extendedData = [...data, ...data]; // Duplicate the data
 
@@ -102,22 +104,34 @@ export const CustomParallax = ({ setDominantColor, onPeekChange }: Prop) => {
     return isColorLight(bgColor) ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.6)";
   };
 
+  const handleScroll = (event: any) => {
+    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+    const paddingToRight = 20; // Adjust this value as needed
+    const isCloseToEnd = layoutMeasurement.width + contentOffset.x >= contentSize.width - paddingToRight;
+    setIsAtEnd(isCloseToEnd);
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <Animated.View style={[topPlacesAnimatedStyle]}>
         {!isPeeked && (
           <View
             style={{
+              
               marginTop: SPACING * 4,
               borderTopWidth: 1,
               borderBottomWidth: 1,
               borderLeftWidth: 1,
               marginLeft: SPACING/2,
+              marginRight: isAtEnd ? SPACING/2 : 0,
               paddingVertical: SPACING,
               paddingHorizontal: SPACING/4,
               borderTopLeftRadius: SPACING,
               borderBottomLeftRadius: SPACING,
+              borderRightWidth: isAtEnd ? 1 : 0, // Add this line
               borderColor: getTextColor(dominantColor),
+              borderTopRightRadius: isAtEnd ? SPACING : 0, // Add this line
+              borderBottomRightRadius: isAtEnd ? SPACING : 0, // Add this line
             }}
           >
             <Text
@@ -141,9 +155,13 @@ export const CustomParallax = ({ setDominantColor, onPeekChange }: Prop) => {
               {activeItem.peek.description}
             </Text>
             <ScrollView
+              ref={scrollViewRef}
               horizontal
               showsHorizontalScrollIndicator={false}
               style={{ paddingHorizontal: SPACING/2 }}
+              onScroll={handleScroll} // Add this line
+              scrollEventThrottle={16} // Add this line
+              
             >
               {activeItem.places.map((place, index) => (
                 <View
